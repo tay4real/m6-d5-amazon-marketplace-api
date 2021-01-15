@@ -7,7 +7,6 @@ const ReviewSchema = new Schema(
     rate: {
       type: Number,
       required: true,
-      description: "Filed cannot be empty",
     },
   },
   { timestamps: true }
