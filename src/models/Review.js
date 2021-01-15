@@ -2,7 +2,10 @@ const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
 
 const ReviewSchema = new Schema(
-  { comment: String, rate: String },
+  {
+    comment: { type: String, required: true },
+    rate: { type: Number, maximum: 5, required: true },
+  },
   { timestamps: true }
 );
 
