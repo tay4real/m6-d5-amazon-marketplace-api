@@ -15,7 +15,7 @@ const productModel = new Schema(
       required: true,
     },
     price: {
-      type: Number,
+      type: Double,
       required: true,
     },
     category: {
