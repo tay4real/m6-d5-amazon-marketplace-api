@@ -1,8 +1,7 @@
 const express = require("express");
 const { check, validationResult } = require("express-validator");
-const uniqid = require("uniqid");
-const { getCarts, writeCarts } = require("../../lib/fsUtilities");
-const { getProducts, writeProducts } = require("../../lib/fsUtilities");
+
+
 
 const cartsRouter = express.Router();
 

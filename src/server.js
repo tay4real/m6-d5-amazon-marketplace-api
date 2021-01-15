@@ -24,15 +24,7 @@ const staticFolderPath = join(__dirname, "../public");
 server.use(express.static(staticFolderPath));
 server.use(express.json());
 
-const loggerMiddleware = (req, res, next) => {
-  console.log(`Logged ${req.url} ${req.method} -- ${new Date()}`);
-  next();
-};
-
 server.use(cors());
-server.use(express.json());
-server.use(loggerMiddleware);
-server.use(express.static(staticFolderPath));
 
 server.get("/", (req, res, next) => res.send("Server is running..."));
 server.use("/products", productsRouter);
