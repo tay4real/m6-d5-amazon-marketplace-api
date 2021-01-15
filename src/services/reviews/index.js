@@ -23,7 +23,7 @@ reviewsRouter.get("/", async (req, res, next) => {
 
 reviewsRouter.get("/:id", async (req, res, next) => {
   try {
-    const review = await AuthorModel.findById(req.params.id);
+    const review = await ReviewModel.findById(req.params.id);
     if (review) {
       res.send(review);
     } else {
@@ -56,7 +56,7 @@ reviewsRouter.put("/:id", async (req, res, next) => {
     );
 
     if (modifiedReview) {
-      res.send(modifiedAuthor);
+      res.send(modifiedReview);
     } else {
       const error = new Error(`review with id ${req.params.id} not found`);
       error.httpStatusCode = 404;
