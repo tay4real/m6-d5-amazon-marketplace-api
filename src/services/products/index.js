@@ -2,9 +2,9 @@ const express = require("express");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../../lib/cloudinary");
-const express = require("express");
+
 const mongoose = require("mongoose");
-const productModel = require("../../Product");
+const productModel = require("../../models/Product");
 
 const productRouter = express.Router();
 
@@ -210,7 +210,7 @@ const cloudinaryMulter = multer({ storage: storage });
 productRouter.post(
   "/",
   cloudinaryMulter.single("product_image"),
-  productsValidation,
+
   async (req, res, next) => {
     try {
       const validationErrors = validationResult(req);

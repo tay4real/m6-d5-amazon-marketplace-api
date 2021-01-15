@@ -3,7 +3,7 @@ const listEndpoints = require("express-list-endpoints");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { join } = require("path");
-
+require("dotenv").config();
 const productsRouter = require("./services/products");
 const reviewsRouter = require("./services/reviews");
 const cartsRouter = require("./services/carts");
@@ -18,7 +18,7 @@ const {
 
 const server = express();
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 3001;
 
 const staticFolderPath = join(__dirname, "../public");
 server.use(express.static(staticFolderPath));
@@ -47,9 +47,10 @@ server.use(badRequestHandler);
 server.use(catchAllHandler);
 
 console.log(listEndpoints(server));
-
+const mongo_db = process.env.MONGO_URI;
+console.log(mongo_db);
 mongoose
-  .connect(process.env.MONGO_CONNECTION, {
+  .connect(mongo_db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
