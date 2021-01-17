@@ -29,8 +29,7 @@ productsRouter.get("/", async (req, res, next) => {
     )
       .sort(query.options.sort)
       .skip(query.options.skip)
-      .limit(query.options.limit)
-      .populate("reviews");
+      .limit(query.options.limit);
     res.send({ links: query.links("/products", total), products });
   } catch (error) {
     next("Sorry, a problem occurred!");
@@ -39,9 +38,7 @@ productsRouter.get("/", async (req, res, next) => {
 
 productsRouter.get("/:productId", async (req, res, next) => {
   try {
-    const product = await ProductModel.findById(req.params.id).populate(
-      "reviews"
-    );
+    const product = await ProductModel.findById(req.params.productId);
     res.send(product);
   } catch (error) {
     next("Sorry, a problem occurred!");
@@ -50,14 +47,10 @@ productsRouter.get("/:productId", async (req, res, next) => {
 
 productsRouter.post(
   "/",
-  cloudinaryMulter.single("product_image"),
+
   async (req, res, next) => {
     try {
-      const newProductObject = req.body;
-
-      newProductObject.imageUrl = req.file.path;
-
-      const newProduct = new ProductModel(newProductObject);
+      const newProduct = new ProductModel(req.body);
       const { _id } = await newProduct.save();
 
       res.status(201).send(_id);
@@ -68,38 +61,30 @@ productsRouter.post(
   }
 );
 
-productsRouter.put(
-  "/:productId",
-  cloudinaryMulter.single("product_image"),
+productsRouter.put("/:productId", async (req, res, next) => {
+  try {
+    const modifiedProduct = await ProductModel.findByIdAndUpdate(
+      req.params.productId,
+      req.body,
+      { runValidators: true, new: true }
+    );
 
-  async (req, res, next) => {
-    try {
-      const newProductObject = req.body;
-      newProductObject.imageUrl = req.file.path;
-
-      const modifiedProduct = await ProductModel.findByIdAndUpdate(
-        req.params.id,
-        newProductObject,
-        { runValidators: true, new: true }
-      );
-
-      if (modifiedProduct) {
-        res.send(modifiedProduct);
-      } else {
-        next();
-      }
-    } catch (error) {
-      console.log(error);
-      next(error);
+    if (modifiedProduct) {
+      res.send(modifiedProduct);
+    } else {
+      next();
     }
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
-);
+});
 
 productsRouter.delete("/:productId", async (req, res, next) => {
   try {
-    const product = await ProductModel.findByIdAndDelete(req.params.id);
+    const product = await ProductModel.findByIdAndDelete(req.params.productId);
 
-    if (article) {
+    if (product) {
       res.send(`Deleted`);
     } else {
       next();
@@ -109,6 +94,27 @@ productsRouter.delete("/:productId", async (req, res, next) => {
     next(error);
   }
 });
+
+productsRouter.post(
+  "/:id/upload",
+  cloudinaryMulter.single("product_image"),
+  async (req, res, next) => {
+    try {
+      const updated = await ProductModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            imageUrl: req.file.path,
+          },
+        },
+        { runValidators: true, new: true }
+      );
+      res.status(201).send(updated);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 productsRouter.get("/:id/reviews", async (req, res, next) => {
   try {
@@ -137,7 +143,7 @@ productsRouter.get("/:id/reviews/:reviewId", async (req, res, next) => {
       }
     );
 
-    if (review && review.length > 0) {
+    if (review) {
       res.send(review);
     } else {
       next();
@@ -148,84 +154,4 @@ productsRouter.get("/:id/reviews/:reviewId", async (req, res, next) => {
   }
 });
 
-productsRouter.post("/:id", async (req, res, next) => {
-  try {
-    const article = await ProductModel.findById(req.params.id, {
-      _id: 0,
-    });
-
-    const updated = await ProductModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $push: {
-          review: req.body.review,
-        },
-      },
-      { runValidators: true, new: true }
-    );
-    res.status(201).send(updated);
-  } catch (error) {
-    next(error);
-  }
-});
-
-productsRouter.put("/:id/reviews/:reviewId", async (req, res, next) => {
-  try {
-    const { review } = await ProductModel.findOne(
-      {
-        _id: mongoose.Types.ObjectId(req.params.id),
-      },
-      {
-        _id: 0,
-        review: {
-          $elemMatch: { _id: mongoose.Types.ObjectId(req.params.reviewId) },
-        },
-      }
-    );
-
-    if (review && review.length > 0) {
-      const reviewToEdit = { ...review[0].toObject(), ...req.body };
-
-      const modifiedArticle = await ProductModel.findOneAndUpdate(
-        {
-          _id: mongoose.Types.ObjectId(req.params.id),
-          "review._id": mongoose.Types.ObjectId(req.params.reviewId),
-        },
-        { $set: { "review.$": reviewToEdit } },
-        {
-          runValidators: true,
-          new: true,
-        }
-      );
-      res.send(modifiedArticle);
-    } else {
-      next();
-    }
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
-
-productsRouter.delete("/:id/reviews/:reviewId", async (req, res, next) => {
-  try {
-    const modifiedArticle = await ProductModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $pull: {
-          review: {
-            _id: mongoose.Types.ObjectId(req.params.reviewId),
-          },
-        },
-      },
-      {
-        new: true,
-      }
-    );
-    res.send(modifiedArticle);
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
 module.exports = productsRouter;

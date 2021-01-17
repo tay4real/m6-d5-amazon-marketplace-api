@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const ReviewSchema = new Schema(
   {
+    productId: { type: Schema.Types.ObjectId, ref: "products" },
     comment: { type: String, required: true },
     rate: {
       type: Number,
