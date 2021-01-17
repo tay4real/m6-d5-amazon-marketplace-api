@@ -130,7 +130,7 @@ cartsRouter.post("/:cartId/add-to-cart/:productId", async (req, res, next) => {
 // Remove product from cart
 cartsRouter.delete("/:cartId/remove-from-cart/:pId", async (req, res, next) => {
   try {
-    const { product } = await CartModel.findOne(
+    const product = await CartModel.findOne(
       {
         _id: mongoose.Types.ObjectId(req.params.cartId),
       },
@@ -142,13 +142,11 @@ cartsRouter.delete("/:cartId/remove-from-cart/:pId", async (req, res, next) => {
       }
     );
 
-    console.log(product);
-
     const modifiedCart = await CartModel.findByIdAndUpdate(
       req.params.cartId,
       {
         $pull: {
-          products: product,
+          products: product.products[0],
         },
       },
       { runValidators: true, new: true }
